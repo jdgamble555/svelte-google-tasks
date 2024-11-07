@@ -1,6 +1,7 @@
-import { PUBLIC_CLIENT_ID, PUBLIC_CLIENT_SECRET } from '$env/static/public';
+
 import { google } from 'googleapis';
 import type { OAuth2Client } from 'google-auth-library';
+import { PRIVATE_CLIENT_ID, PRIVATE_CLIENT_SECRET } from '$env/static/private';
 
 
 export const COOKIE_NAME = 'user';
@@ -10,8 +11,8 @@ const REDIRECT_URI = '/auth/callback/google';
 
 export const createOAuth2Client = (origin: string) => {
     return new google.auth.OAuth2(
-        PUBLIC_CLIENT_ID,
-        PUBLIC_CLIENT_SECRET,
+        PRIVATE_CLIENT_ID,
+        PRIVATE_CLIENT_SECRET,
         origin + REDIRECT_URI
     );
 };
