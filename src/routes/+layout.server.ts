@@ -1,9 +1,13 @@
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ cookies }) => {
-  const user = cookies.get('user');
+export const load: LayoutServerLoad = async ({
+  locals: { getGoogleSession }
+}) => {
+
+  const session = getGoogleSession();
 
   return {
-    user: user ? JSON.parse(user) : null,
+    user: session ? session.data.user : null
   };
+
 };

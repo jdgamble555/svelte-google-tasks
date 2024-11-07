@@ -1,4 +1,4 @@
-import { oauth2Client } from '$lib/google-auth';
+import { COOKIE_NAME, createOAuth2Client } from '$lib/google-auth';
 import { google } from 'googleapis';
 import type { RequestHandler } from './$types';
 import { redirect } from '@sveltejs/kit';
@@ -12,17 +12,28 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
     }
 
     try {
+        const client = createOAuth2Client(url.origin);
+
         // Exchange the code for tokens
-        const { tokens } = await oauth2Client.getToken(code);
-        oauth2Client.setCredentials(tokens);
+        const { tokens } = await client.getToken(code);
+
+        client.setCredentials(tokens);
 
         // Fetch user info
-        const oauth2 = google.oauth2({ auth: oauth2Client, version: 'v2' });
+        const oauth2 = google.oauth2({
+            auth: client,
+            version: 'v2'
+        });
+
         const userInfo = await oauth2.userinfo.get();
 
+        const session = {
+            user: userInfo.data,
+            tokens
+        };
+
         // Store user data in a cookie or session as needed
-        cookies.set('user', JSON.stringify(userInfo.data), { path: '/' });
-        cookies.set('tokens', JSON.stringify(tokens), { path: '/' });
+        cookies.set(COOKIE_NAME, JSON.stringify(session), { path: '/' });
 
     } catch (error) {
         console.error('Error during authentication:', error);
